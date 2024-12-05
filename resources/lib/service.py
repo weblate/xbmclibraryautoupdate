@@ -74,7 +74,7 @@ class AutoUpdater:
                     if(not player.isPlaying() or utils.getSetting("run_during_playback") == "true"):
 
                         # check if run on idle is checked and screen is idle - disable this on manual run
-                        if(not utils.getSettingBool('run_on_idle') or (utils.getSettingBool('run_on_idle') and (self.monitor.screensaver_running or manual))):
+                        if(manual or not utils.getSettingBool('run_on_idle') or (utils.getSettingBool('run_on_idle') and self.monitor.screensaver_running)):
 
                             # check for valid network connection - check sources if setting enabled
                             if(self._networkUp() and (not utils.getSettingBool('check_sources') or (utils.getSettingBool('check_sources') and self._checkSources(cronJob)))):
