@@ -208,7 +208,7 @@ class AutoUpdater:
             # check that this expression is valid
             try:
                 cron = croniter(result)
-            except ValueError:
+            except (ValueError, KeyError) as e:
                 # syntax error
                 xbmcgui.Dialog().ok(utils.getString(30000), utils.getString(30016) % result)
                 utils.log('Cron syntax error %s' % result, xbmc.LOGDEBUG)
