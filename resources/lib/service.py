@@ -204,27 +204,29 @@ class AutoUpdater:
         if(utils.getSettingBool(settingName + '_advanced_timer')):
             # copy the expression
             result = utils.getSetting(settingName + "_cron_expression")
+
+            # check that this expression is valid
+            try:
+                cron = croniter(result)
+            except ValueError:
+                # syntax error
+                xbmcgui.Dialog().ok(utils.getString(30000), utils.getString(30016) % result)
+                utils.log('Cron syntax error %s' % result, xbmc.LOGDEBUG)
+
+                result = '0 */2 * * *'
+
+                # save the new result
+                utils.setSetting(settingName + "_cron_expression", result)
         else:
             result = '0 */' + str(utils.getSetting(settingName + "_timer")) + ' * * *'
 
         return result
 
     def calcNextRun(self, cronExp, startTime):
-        nextRun = -1
+        # create croniter for this expression
+        cron = croniter(cronExp, startTime)
 
-        try:
-            # create croniter for this expression
-            cron = croniter(cronExp, startTime)
-            nextRun = cron.get_next(float)
-        except ValueError:
-            # error in syntax
-            xbmcgui.Dialog().ok(utils.getString(30000), utils.getString(30016) % cronExp)
-            utils.log('Cron syntax error %s' % cronExp, xbmc.LOGDEBUG)
-
-            # rerun with a valid syntax
-            nextRun = self.calcNextRun('0 */2 * * *', startTime)
-
-        return nextRun
+        return cron.get_next(float)
 
     def showNotify(self, displayToScreen=True):
         # go through and find the next schedule to run
